@@ -1,0 +1,24 @@
+; Real Time Scoring configuration file
+
+[server]
+port: 80
+pid=/tmp/RTS.pid
+;root=/var/www/html
+root=/nfs/OGN/SWdata
+DDBport  ='80'
+DDBurl1  ='http://DDB.glidernet.org/download/?j=2'
+; please 
+clientid=yoursoaringspotcapilientid
+secretkey=yoursoaringspotapisecretkey
+
+[APRS]
+APRS_SERVER_HOST = 'aprs.glidernet.org'
+;APRS_SERVER_HOST = 'glidern4.glidernet.org'
+APRS_SERVER_PORT = 14580
+APRS_USER     = 'youraprsuser'
+APRS_PASSCODE = -1
+APRS_FILTER_DETAILS = "filter r/44.06/5.9913/200   "
+; place here your competition location
+[location]
+location_latitude  = 44.06
+location_longitud  = 5.9913

@@ -1,0 +1,248 @@
+#!/bin/bash 
+if [ $# = 0 ]; then
+	sql='NO'
+else
+	sql=$1
+fi
+SCRIPT=$(readlink -f $0)
+SCRIPTPATH=`dirname $SCRIPT`
+echo								#
+echo " "							#
+echo " "							#
+echo "=================================================="	#
+echo "Installing the common components of the OGN  ...." 	#
+echo "=================================================="	#
+echo " "							#
+echo " "							#
+echo								#
+export LC_ALL=en_US.UTF-8 && export LANG=en_US.UTF-8		#
+sudo apt-get install -y software-properties-common 		#
+sudo apt-get install -y python3-software-properties 		#
+sudo apt-get install -y build-essential 			#
+#sudo rm /etc/apt/sources.list.d/ondre*				#
+#sudo add-apt-repository ppa:ondrej/php				#
+echo								#
+echo " "							#
+echo "=================================================="	#
+echo "Lets update the operating system libraries  ...." 	#
+echo "=================================================="	#
+echo " "							#
+echo								#
+sudo apt-get update						#
+sudo apt-get install -y language-pack-en-base 			# 
+export LC_ALL=en_US.UTF-8 && export LANG=en_US.UTF-8		#
+echo "export LC_ALL=en_US.UTF-8 && export LANG=en_US.UTF-8 " >>~/.profile #
+echo "export LD_LIBRARY_PATH=/usr/local/lib" >>~/.profile 	#
+sudo apt-get -y upgrade						#
+sudo apt install -y cifs-utils					#
+sudo apt install -y nfs-common					#
+echo								#
+echo " "							#
+echo "=================================================="	#
+echo "Installing the packages required . (LAMP stack)..."	#
+echo "=================================================="	#
+echo " "							#
+echo								#
+
+if [ ! -d /var/www/html ]						#
+then								#
+    sudo mkdir /var/www/html/					#
+    sudo chmod 777 /var/www/html/				#
+    sudo chown www-data:root /var/www/html/			#
+fi								#
+if [ ! -d /var/www/html/main ]					#
+then								#
+    sudo mkdir /var/www/html/main				#
+    sudo chmod 777 /var/www/html/main				#
+    sudo chown www-data:root /var/www/html/main			#
+fi								#
+cd /var/www/html/main						#
+sudo apt install -y mariadb-client				#
+sudo apt install -y libmariadb-dev				#
+sudo apt install -y python3-dev python3-pip 			#
+if [ $sql = 'MariaDB' ]						#
+then								#
+     sudo apt install -y mariadb-server 			#
+     sudo -H python3 -m pip install mariadb            		#
+fi								#
+if [ $sql = 'MySQL' ]						#
+then								#
+	sudo apt-get install -y tasksel  			#
+	sudo apt policy mysql-server				#
+	sudo apt install mysql-server=5.7.32-1ubuntu18.04	#
+	sudo apt install mysql-client=5.7.32-1ubuntu18.04	#
+        sudo tasksel install lamp-server                        #
+fi								#
+sudo apt-get install -y percona-toolkit				#
+sudo apt-get install -y sqlite3 ntpdate				#
+sudo apt-get install -y figlet inetutils-* 			#
+sudo apt-get install -y avahi-daemon libcurl4-openssl-dev       #
+sudo apt-get install -y dos2unix libarchive-dev	 autoconf mc	#
+sudo apt-get install -y pkg-config git	mutt vim		# 
+git config --global user.email "acasadoalonso@gmail.com"        #
+git config --global user.name "Angel Casado"                    #
+sudo apt-get install -y apache2 php 				#
+sudo apt-get install -y php-sqlite3 php-mysql php-cli 		#
+sudo apt-get install -y php-mbstring php-json			#
+sudo apt-get install -y php7.4					#
+sudo apt-get install -y ntpdate					#
+sudo apt-get install -y ssmtp					#
+sudo apt-get install -y at sshpass minicom 			#
+sudo apt-get install -y fakeroot debhelper 			#
+sudo apt-get install -y libfile-fcntllock-perl			#
+sudo apt-get install -y nvme-cli				#
+sudo apt-get install -y dnsutils				#
+sudo apt-get install -y neofetch				#
+sudo apt-get install -y python3-autopep8			#
+sudo a2enmod rewrite						#
+sudo phpenmod mbstring						#
+sudo a2enmod headers						#
+echo	""							#
+echo	""							#
+if [ $sql = 'MySQL' ]						#
+then								#
+    sudo apt-get install -y phpmyadmin 				#
+    sudo service apache2 restart				#
+    sudo apt-get -y autoremove					#
+    echo "================================================"     #
+    echo "Running msqladmin .... assign root password ... "	#
+    echo "================================================"     #
+    if [ ! -f .DBpasswd    ]					#
+    then							#
+       echo "Type DB password ..."				#
+       read DBpasswd						#
+       echo $DBpasswd > .DBpasswd				#
+    fi								#
+    sudo mysqladmin -u root password $(cat .DBpasswd)		#
+    sudo mysql_secure_installation				#
+fi								#
+echo								#
+echo " "							#
+echo "=================================================="	#
+echo "Installing the PYTHON modules required  ..."		#
+echo "=================================================="	#
+echo " "							#
+echo								#
+sudo -H python3 -m pip install --upgrade pip			#
+pip3 -V								#
+sudo -H python3 -m pip install ephem pytz geopy configparser 	#
+sudo -H python3 -m pip install pycountry uritemplate requests	#
+sudo -H python3 -m pip install beeprint ogn.client		#
+sudo -H python3 -m pip install tqdm psutil python-dateutil	#
+sudo -H python3 -m pip install ttn               		#
+sudo -H python3 -m pip install paho-mqtt			#
+sudo -H python3 -m pip install pyserial 			#
+sudo -H python3 -m pip install pyopenssl 			#
+sudo -H python3 -m pip install eciespy pycryptodome rsa         #
+sudo -H python3 -m pip install ansible               		#
+sudo -H python3 -m pip install ansible-lint            		#
+sudo -H python3 -m pip install molecule               		#
+sudo -H python3 -m pip install docker               		#
+sudo -H python3 -m pip install yamllint               		#
+sudo -H python3 -m pip install setuptools 			#
+sudo -H python3 -m pip install flake8               		#
+if [ $sql = 'MySQL' ]						#	
+then								#
+	sudo -H pip3 uninstall mysqlclient			#
+        sudo apt-get install -y libmysqlclient-dev		#
+else								#
+        sudo apt-get libmariadb-dev				#
+fi								#
+sudo -H pip3 install --no-binary mysqlclient mysqlclient 	#
+cd /var/www/html/						#
+if [ ! -d /etc/local ]						#
+then								#
+    sudo mkdir /etc/local					#
+    sudo chmod 777 /etc/local					#
+fi								#
+echo								#
+if [ ! -d /var/www/data ]					#
+then								#
+    sudo mkdir /var/www/data					#
+    sudo chmod 777 /var/www/data				#
+fi								#
+if [ ! -d /var/www/html/cuc ]					#
+then								#
+    sudo mkdir /var/www/html/cuc				#
+    sudo chmod 777 /var/www/html/cuc				#
+fi								#
+echo								#
+echo " "							#
+echo "=================================================="	#
+echo "Installing the templates needed  ...." 			#
+echo "=================================================="	#
+echo " "							#
+echo								#
+if [ ! -d /var/www/html/main ]					#
+then								#
+     mkdir /var/www/html/main					#
+     chmod 777 /var/www/html/main				#
+fi								#
+cd /var/www/html/main						#
+if [ $sql = 'docker' -o $sql == 'MariaDB' ]			#
+then								#
+   echo " "							#
+   echo "=================================================="	#
+   echo "Install docker  ...." 					#
+   echo "=================================================="	#
+   echo " "							#
+   if [ ! -f /usr/bin/docker ]					#
+   then								#
+      sudo curl -sSL https://get.docker.com | sh		#
+      sudo usermod -aG docker $USER				#
+      sudo apt update						#
+   fi								#
+   cd $SCRIPTPATH/../SARsrc/dockerfiles				#
+   echo "Current directory: "$(pwd)				#
+   cp ../doc/.my.cnf ~/						#
+   arch=$(uname -m)						#
+   if [ $arch != 'x84-64' ]					#
+   then								#
+      cd Mariadb.debian						#
+      echo "Create the container for the non-AMD64 architecture" #
+      echo "===================================================" #
+      #bash mariadb.patch					#
+      make							#
+      echo "Create mariadb container"				#
+      echo "========================"				#
+      bash mariadb.sh						#
+      echo "Create phpmyadmin container"			#
+      echo "==========================="			#
+      bash mariadbpma.pull					#
+      bash mariadbpma.sh					#
+      cd ..							#
+   else								#
+      sudo bash mariadbnet.sh					#
+      sudo bash mariadb.sh					#
+      sudo bash mariadbpma.sh					#
+   fi								#
+   bash install.portainer					#
+   if [ ! -f .DBpasswd    ]					#
+   then								#
+      echo "Type DB password ..."				#
+      read DBpasswd						#
+      echo $DBpasswd > .DBpasswd				#
+   fi								#
+   cd $SCRIPTPATH/../SARsrc					#
+   echo "Current directory: "$(pwd)				#
+   ping MARIADB -c 5						#
+   cat .DBpasswd						#
+   docker exec mariadb mariadb -e "create user if not exists root@'%' identified by '$(cat .DBpasswd)';"
+   docker exec mariadb mariadb -e "grant all privileges on *.* to root@'%' with GRANT option;"
+   sudo mysql -u root -p$(cat .DBpasswd) -h MARIADB <doc/adduser.sql	
+   echo "SET GLOBAL log_bin_trust_function_creators = 1; " | sudo mysql -u root -p$(cat .DBpasswd) -h MARIADB
+   echo "Secure the installation now ... answer the questions"  #
+   sudo mysql_secure_installation				#
+   cd -								#
+fi								#
+cd								#
+sudo apt-get install percona-toolkit				#
+sudo apt-get -y autoremove					#
+echo								#
+echo " "							#
+echo "=================================================="	#
+echo " End of common components  ...." 				#
+echo "=================================================="	#
+echo " "							#
+echo " "							#
+echo								#
