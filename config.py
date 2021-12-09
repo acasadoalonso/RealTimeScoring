@@ -23,7 +23,7 @@ else:
 	print ("Config file: ", configfile, " not found \n")
 	exit(-1)			# nothing to do
 #
-# --------------------------------------#
+# -------------SERVER-------------------------#
 #
 datapath                = cfg.get    ('server', 'root').strip("'").strip('"')
 try:
@@ -43,22 +43,22 @@ except:
 try:
 	DDBhost     = cfg.get('server', 'DDBhost').strip("'")
 except:
-	DDBhost     = 'acasado.es'
+	DDBhost     = 'DDB.glidernet.org'
 
 try:
 	DDBport     = cfg.get('server', 'DDBport').strip("'")
 except:
-	DDBport     = '60082'
+	DDBport     = '80'
 
 try:
 	DDBurl1     = cfg.get('server', 'DDBurl1').strip("'")
 except:
-	DDBurl1     = 'http://acasado.es:60082/download/?j=2'
+	DDBurl1     = 'http://DDB.glidernet.org/download/?j=2'
 
 try:
 	DDBurl2     = cfg.get('server', 'DDBurl2').strip("'")
 except:
-	DDBurl2     = 'http://DDB.glidernet.org/download/?j=2'
+	DDBurl2     = 'http://acasado.es:60082/download/?j=2'
 
 try:
 	clientid     = cfg.get('server', 'clientid').strip("'")
@@ -71,7 +71,7 @@ except:
 	secretkey    = ''
 
 #
-# --------------------------------------#
+# -------------APRS-------------------------#
 #
 
 APRS_SERVER_HOST        = cfg.get    ('APRS', 'APRS_SERVER_HOST').strip("'").strip('"')
@@ -82,7 +82,7 @@ APRS_FILTER_DETAILS     = cfg.get    ('APRS', 'APRS_FILTER_DETAILS').strip("'").
 APRS_FILTER_DETAILS     = APRS_FILTER_DETAILS + '\n '
 
 #
-# --------------------------------------#
+# -------------LOCATION-------------------------#
 #
 location_latitude       = cfg.get('location', 'location_latitude').strip("'").strip('"')
 location_longitude      = cfg.get('location', 'location_longitud').strip("'").strip('"')
