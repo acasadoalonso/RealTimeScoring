@@ -252,6 +252,9 @@ then								#
 fi								#
 cd								#
 sudo apt-get -y autoremove					#
+df -h								#
+hostnamectl							#
+neofetch							#
 echo								#
 echo " "							#
 echo "=================================================="	#

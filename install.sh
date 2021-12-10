@@ -18,6 +18,7 @@ fi								#
 if [ ! -d /etc/local ]						#
 then								#
     sudo mkdir /etc/local					#
+    sudo chmod 777 /etc/local					#
 fi								#
 if [ ! -d ~/src  ]						#
 then								#
