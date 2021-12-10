@@ -6,8 +6,8 @@ echo "==========================================================================
 sudo apt-get update
 sudo apt-get upgrade -y
 sudo apt-get install -y neofetch git
-mkdir -p home/vagrant/src
-cd /home/vagrant/src
+mkdir -p /home/vagrant/src
+cd       /home/vagrant/src
 pwd
 if [ -d RealTimeScoring ]
 then

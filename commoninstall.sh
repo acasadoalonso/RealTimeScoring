@@ -61,7 +61,8 @@ then								#
     sudo chown www-data:root /var/www/html/main			#
 fi								#
 cd /var/www/html/main						#
-echo "Install now MariaDB & python"                             #
+echo "Install now MariaDB & python3"                            #
+echo "============================="                            #
 sudo apt install -y mariadb-client				#
 sudo apt install -y libmariadb-dev				#
 sudo apt install -y python3-dev python3-pip 			#
@@ -88,6 +89,7 @@ sudo apt-get install -y pkg-config git	mutt vim		#
 git config --global user.email "acasadoalonso@gmail.com"        #
 git config --global user.name "Angel Casado"                    #
 echo "Install now Apache2 & PHP   "                             #
+echo "============================"                             #
 sudo apt-get install -y apache2 php 				#
 sudo apt-get install -y php-sqlite3 php-mysql php-cli 		#
 sudo apt-get install -y php-mbstring php-json			#
@@ -96,6 +98,7 @@ sudo a2enmod rewrite						#
 sudo phpenmod mbstring						#
 sudo a2enmod headers						#
 echo "Install now other utilities"				#
+echo "==========================="                              #
 sudo apt-get install -y ntpdate					#
 sudo apt-get install -y ssmtp					#
 sudo apt-get install -y at sshpass minicom 			#
@@ -152,6 +155,7 @@ if [ $sql = 'MySQL' ]						#
 then								#
 	sudo -H pip3 uninstall mysqlclient			#
         sudo apt-get install -y libmysqlclient-dev		#
+        sudo apt-get install percona-toolkit			#
 else								#
         sudo apt-get libmariadb-dev				#
 fi								#
@@ -240,10 +244,10 @@ then								#
    echo "SET GLOBAL log_bin_trust_function_creators = 1; " | sudo mysql -u root -p$(cat .DBpasswd) -h MARIADB
    echo "Secure the installation now ... answer the questions"  #
    sudo mysql_secure_installation				#
+   sudo apt-get install percona-toolkit				#
    cd -								#
 fi								#
 cd								#
-sudo apt-get install percona-toolkit				#
 sudo apt-get -y autoremove					#
 echo								#
 echo " "							#
