@@ -12,6 +12,7 @@
    ```
 4. Execute the RTS script, go into the VM machine and ....
 
+   ```
    vagrant ssh			# log into the VM machine
    cd ~/src/RTSsrc		# go to the directory where the scripts are
    bash RTS.sh 			# execute the RealTimeScoring script
