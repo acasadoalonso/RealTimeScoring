@@ -61,6 +61,7 @@ then								#
     sudo chown www-data:root /var/www/html/main			#
 fi								#
 cd /var/www/html/main						#
+echo "============================="                            #
 echo "Install now MariaDB & python3"                            #
 echo "============================="                            #
 sudo apt install -y mariadb-client				#
@@ -88,6 +89,7 @@ sudo apt-get install -y dos2unix libarchive-dev	 autoconf mc	#
 sudo apt-get install -y pkg-config git	mutt vim		# 
 git config --global user.email "acasadoalonso@gmail.com"        #
 git config --global user.name "Angel Casado"                    #
+echo "============================"                             #
 echo "Install now Apache2 & PHP   "                             #
 echo "============================"                             #
 sudo apt-get install -y apache2 php 				#
@@ -97,6 +99,7 @@ sudo apt-get install -y php7.4					#
 sudo a2enmod rewrite						#
 sudo phpenmod mbstring						#
 sudo a2enmod headers						#
+echo "==========================="                              #
 echo "Install now other utilities"				#
 echo "==========================="                              #
 sudo apt-get install -y ntpdate					#
