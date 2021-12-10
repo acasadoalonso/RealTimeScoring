@@ -19,8 +19,6 @@ export LC_ALL=en_US.UTF-8 && export LANG=en_US.UTF-8		#
 sudo apt-get install -y software-properties-common 		#
 sudo apt-get install -y python3-software-properties 		#
 sudo apt-get install -y build-essential 			#
-#sudo rm /etc/apt/sources.list.d/ondre*				#
-#sudo add-apt-repository ppa:ondrej/php				#
 echo								#
 echo " "							#
 echo "=================================================="	#
@@ -43,9 +41,15 @@ echo "Installing the packages required . (LAMP stack)..."	#
 echo "=================================================="	#
 echo " "							#
 echo								#
-
-if [ ! -d /var/www/html ]						#
+								#
+if [ ! -d /var/www/html ]					#
 then								#
+    if [ ! -d /var/www ]					#
+    then							#
+         sudo mkdir /var/www					#
+         sudo chmod 777 /var/www/				#
+         sudo chown www-data:root /var/www/			#
+    fi								#
     sudo mkdir /var/www/html/					#
     sudo chmod 777 /var/www/html/				#
     sudo chown www-data:root /var/www/html/			#
@@ -57,9 +61,11 @@ then								#
     sudo chown www-data:root /var/www/html/main			#
 fi								#
 cd /var/www/html/main						#
+echo "Install now MariaDB & python"                             #
 sudo apt install -y mariadb-client				#
 sudo apt install -y libmariadb-dev				#
 sudo apt install -y python3-dev python3-pip 			#
+sudo apt install -y python3-autopep8				#
 if [ $sql = 'MariaDB' ]						#
 then								#
      sudo apt install -y mariadb-server 			#
@@ -81,10 +87,15 @@ sudo apt-get install -y dos2unix libarchive-dev	 autoconf mc	#
 sudo apt-get install -y pkg-config git	mutt vim		# 
 git config --global user.email "acasadoalonso@gmail.com"        #
 git config --global user.name "Angel Casado"                    #
+echo "Install now Apache2 & PHP   "                             #
 sudo apt-get install -y apache2 php 				#
 sudo apt-get install -y php-sqlite3 php-mysql php-cli 		#
 sudo apt-get install -y php-mbstring php-json			#
 sudo apt-get install -y php7.4					#
+sudo a2enmod rewrite						#
+sudo phpenmod mbstring						#
+sudo a2enmod headers						#
+echo "Install now other utilities"				#
 sudo apt-get install -y ntpdate					#
 sudo apt-get install -y ssmtp					#
 sudo apt-get install -y at sshpass minicom 			#
@@ -93,10 +104,6 @@ sudo apt-get install -y libfile-fcntllock-perl			#
 sudo apt-get install -y nvme-cli				#
 sudo apt-get install -y dnsutils				#
 sudo apt-get install -y neofetch				#
-sudo apt-get install -y python3-autopep8			#
-sudo a2enmod rewrite						#
-sudo phpenmod mbstring						#
-sudo a2enmod headers						#
 echo	""							#
 echo	""							#
 if [ $sql = 'MySQL' ]						#
