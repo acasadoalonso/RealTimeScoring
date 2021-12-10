@@ -7,7 +7,8 @@
    cd RTSsrc/VM			# go to the VM provisioning directory
    vagrant up			# create and provision the VM machine
    ```
-3. Adjust the configuration file /etc/local/RTSconfig.ini with the directory where to store the IGC files, and the SoaringSpot clientid/secretkey of the competition to run the Real Time Scoring, plus the OGC APRS parameters.
+3. Adjust the configuration file /etc/local/RTSconfig.ini with the directory where to store the IGC files, 
+   and the SoaringSpot clientid/secretkey of the competition to run the Real Time Scoring, plus the OGN APRS parameters.
    The program connects with the OGN APRS network and gather all the fixes of all the gliders on the race, generating the IGC files used to score the race 
    ```
    vagrant ssh			# log into the VM machine
