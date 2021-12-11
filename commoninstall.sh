@@ -168,6 +168,7 @@ if [ ! -d /etc/local ]						#
 then								#
     sudo mkdir /etc/local					#
     sudo chmod 777 /etc/local					#
+    sudo chown $USER:root -R /etc/local				#
 fi								#
 echo								#
 if [ ! -d /var/www/data ]					#
@@ -252,6 +253,7 @@ then								#
 fi								#
 cd								#
 sudo apt-get -y autoremove					#
+echo "__________________________________________________"       #
 df -h								#
 hostnamectl							#
 neofetch							#

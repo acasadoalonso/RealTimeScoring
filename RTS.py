@@ -113,7 +113,7 @@ secretkey	= args.secret		# secret key
 # ======================== SETUP parameters =======================#
 cwd = os.getcwd()                       # get the current working directory
                                         # where to find the clientid and secretkey files
-if client == '' and secret == '':
+if client == '' and secretkey == '':	# if not provided in the arguments ???
  if config.clientid == '' or config.secretkey == '':
    if prt:
       print("Reading the clientid/secretkey from the SoaringSpot directory")
