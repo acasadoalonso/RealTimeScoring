@@ -16,7 +16,7 @@ then
 	ls -la $DBpath
 fi
 cd $DBpath
-pwd
+echo "IGC files going to: "$(pwd)
 echo $(hostname)" running RTS.sh:" 		>>RTSproc.log
 python3 $SCRIPTPATH/RTS.py			>>RTSproc.log &
 
