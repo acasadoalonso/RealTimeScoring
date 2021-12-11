@@ -17,6 +17,7 @@ import pytz
 import os.path
 import atexit
 import signal
+import argparse
 from parserfuncs import *               # the ogn/ham parser functions
 from ognddbfuncs import *		# the ogn DDB functions
 from soa2rts     import *		# the soaringspot to real time scoring function
@@ -51,7 +52,7 @@ def shutdown(sock):
 ##################################################################
 def signal_term_handler(signal, frame):
     print('got SIGTERM ... shutdown orderly')
-    shutdown(sock, datafile, tmaxa, tmaxt, tmid, tmstd)  # shutdown orderly
+    shutdown(sock)  			# shutdown orderly
     print("\n\nExit after a SIGTERM now ....\n\n")
     sys.exit(0)
 #########################################################################
@@ -69,7 +70,7 @@ fid = {}                         	    # FLARM ID list
 ffd = {}                      		    # file descriptor list
 RTS={}					    # the output from soa2rts
 tmp = ''				    # an add to the IGC fine name
-prt = False				    # print debugging 
+prt = False				    # print debugging, false by default  
 CCerrors=[]
 nerr=0					    # number of errors found
 nrecs=0
@@ -98,11 +99,22 @@ atexit.register(lambda: os.remove(config.PIDfile))
 # ---------------------------------------------------------------- #
 print("\n\n")
 print("Utility to get the api.soaringspot.com data and prepare the RTS  ", pgmver)
-print("=====================================================================")
+print("======================================================================")
+# ======================== parsing arguments =======================#
+parser = argparse.ArgumentParser(description="Real Time Scoring data gathering daemon")
+parser.add_argument('-p', '--print',  required=False, dest='prt',    action='store', default=False)
+parser.add_argument('-c', '--client', required=False, dest='client', action='store', default='')
+parser.add_argument('-s', '--secret', required=False, dest='secret', action='store', default='')
+args 		= parser.parse_args()
+prt 		= args.prt		# print on|off
+client 		= args.client		# client ID
+secretkey	= args.secret		# secret key
+
 # ======================== SETUP parameters =======================#
 cwd = os.getcwd()                       # get the current working directory
                                         # where to find the clientid and secretkey files
-if config.clientid == '' or config.secretkey == '':
+if client == '' and secret == '':
+ if config.clientid == '' or config.secretkey == '':
    if prt:
       print("Reading the clientid/secretkey from the SoaringSpot directory")
    secpath = cwd+"/SoaringSpot/"	# if client/screct keys are not in the config file, read it for SoaringSpot directory
@@ -113,20 +125,31 @@ if config.clientid == '' or config.secretkey == '':
    secretkey = f.read()                 # read it
                                         # clear the whitespace at the end
    secretkey = secretkey.rstrip().encode(encoding='utf-8')
-else:
+ else:
    client = config.clientid
    client = client.rstrip() 		# clear the whitespace at the end
    secretkey = config.secretkey
    secretkey = secretkey.rstrip().encode(encoding='utf-8')
+else:					# use the clientid and secretkey from the arguments
+   client = client.rstrip() 		# clear the whitespace at the end
+   client = client.replace('\\', '')
+   secretkey = secretkey.replace('\\', '')
+   secretkey = secretkey.rstrip().encode(encoding='utf-8')
+#
 #					# call the SOA2RTS function in order to get the competition information
-RTS=soa2rts(RTS, client, secretkey, prt=prt)
-jsonfile = open(datapath+"/RTS2IGC.json", 'w')
+#
+RTS=soa2rts(RTS, client, secretkey, prt=prt) # call the SoaringSpot API to gather the competition information
+#
+jsonfile = open(datapath+"/RTS2IGC.json", 'w') # write the JSON file as a debugging
 j = json.dumps(RTS, indent=4)
-jsonfile.write(j)
+jsonfile.write(j)			# dump it
 jsonfile.close()
 
 devicesid=RTS["Devices"]		# get the list of FlarmsIDs
 pilots=RTS['Pilots']			# get the pilots infor from the soa2rts function
+if len(devicesid) == 0:            	# if no devices ???
+   print ("No devices to score ... Pilots: ", len(pilots), "\n\n")
+   exit (-1)				# nothing else to do
 location_latitude = config.location_latitude  # get the configuration parameters
 location_longitude = config.location_longitude
 #
@@ -134,7 +157,7 @@ location_longitude = config.location_longitude
 # Initialise API for computing sunrise and sunset
 #-----------------------------------------------------------------
 #
-location = ephem.Observer()
+location = ephem.Observer()		# create the ephemerides
 location.pressure = 0
 location.horizon = '-0:34'              # Adjustments for angle to horizon
 
@@ -145,16 +168,18 @@ next_sunset = location.next_setting(ephem.Sun(), datenow)
 print("Sunrise today is at: ", next_sunrise, " UTC ")
 print("Sunset  today is at: ", next_sunset,  " UTC ")
 print("Time now is: ", datenow, " Local time")
-
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+#
+# -----------------Connect with the APRS-------------------------------------------------
+#
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # create a socket and connect
 sock.connect((config.APRS_SERVER_HOST, config.APRS_SERVER_PORT))
 print("Socket sock connected")		# report connected to the APRS network
 
                                         # logon to OGN APRS network
 if len(devicesid) > 0:                  # if we have tracker pairing table ???
-    filter = "filter p/LE b/"+devicesid+" \n"      # prepare the filter param of login
+    filter = "filter b/"+devicesid+" \n"  # prepare the filter param of login
     login = 'user %s pass %s vers Real-Time-Scoring %s %s' % (config.APRS_USER, config.APRS_PASSCODE, pgmver, filter)
-else:
+else:					# THIS never will be the case !!!!!
     login = 'user %s pass %s vers Real-Time-Scoring %s %s' % (config.APRS_USER, config.APRS_PASSCODE, pgmver, config.APRS_FILTER_DETAILS)
 login=login.encode(encoding='utf-8', errors='strict') 
 sock.send(login)                        # login into the APRS server
@@ -165,7 +190,7 @@ print("APRS Version:", sock_file.readline()) # report the reply
 if prt:
    print("APRS Login request:", login)	# report the LOGIN used
 print("APRS Login reply:  ", sock_file.readline()) # report the acceptance message
-
+# --------------------------------------------------------------------------------
 start_time = time.time()                # get the start and local times
 local_time = datetime.now()
 fl_date_time = local_time.strftime("%y%m%d")
@@ -174,29 +199,32 @@ keepalive_count = 1                     # number of keep alive messages
                                         # every 3 minutees we send a keep alive message to the APRS server
 keepalive_time = time.time()
                                         # and we create a RTS.alive file for control that we are alive as well
-alive(config.APP, first="yes")
-sys.stdout.flush()                      # flush the print messages
-sys.stderr.flush()                      # flush the print messages
+alive(config.APP, first="yes")		# first means crete the file, it is the first time
 #
 #-------------------------- MAIN process ---------------------------------------
+#
 print ("Number of pilots on the competition:", len(pilots))
 print ("Start gathering data from the OGN")
 print ("=================================")
-try:
+sys.stdout.flush()                      # flush the print messages
+sys.stderr.flush()                      # flush the print messages
+try:					# try to be able to catch exception the ctrl-C 
 
-    while True :			# endless LOOP
+    while True :			# endless LOOP, until end of day or signal catched 
 
         # check the localtime for this location...
         location.date = ephem.Date(datetime.utcnow())
         date = datetime.utcnow()        # time of the server
         localdate = datetime.now()      # time of the server
-        # if it is past the sunset or 22:00h local time ??
-        if location.date > next_sunset or localdate.hour > 21:
+        # if it is past the sunset or 21:00h local time ??
+        if location.date > next_sunset or localdate.hour > 21: # until sunset or 21:00h local time
 
             print("At Sunset now ... Time is (server):", date, "UTC. Location time:",
                   location.date, "UTC ... Next sunset is: ", next_sunset,  " UTC \n================================================================================\n")
-            shutdown(sock)
+            shutdown(sock)		# shutdown in that case
             print("At Sunset ... Exit\n\n", localdate)
+            sys.stdout.flush()          # flush the print messages
+            sys.stderr.flush()          # flush the print messages
             exit(0)
 
         current_time = time.time()
@@ -210,7 +238,7 @@ try:
                 run_time = time.time() - start_time     # get the run time
                 if prt:
                     print("Send keepalive no#: ", keepalive_count, " After elapsed_time: ", 
-                                                  int((current_time - keepalive_time)), " After runtime: ", int(run_time), " secs")
+                         int((current_time - keepalive_time)), " After runtime: ", int(run_time), " secs")
                 keepalive_time = current_time		# start to time again
                 keepalive_count += 1                    # keep alive counter and shutdown indicator if -1
 
@@ -229,7 +257,7 @@ try:
 
 # ------------------------------------------------------- main loop ------------------------------------- #
         if prt:
-            print("In main loop. Count= ", loopindex)
+            print("In main loop. Count= ", loopindex, "Current time: ", localdate)
             loopindex += 1
         try:
             # Read packet string from socket
@@ -314,10 +342,6 @@ try:
         station = msg['station']                # get the station ID
         if ptype == 'status':                   # if OGN status report
             continue
-        if not source in fsour:                 # did we see this source
-            fsour[source] = 1                   # init the counter
-        else:
-            fsour[source] += 1                  # increase the counter
         if not ident in fid:                # if we did not see the FLARM ID
             for pil in pilots:
                 if pil['Flarmid'] == ident:
@@ -380,8 +404,8 @@ try:
 #-----------------------------------------------------------------
 # end of while loop
 #-----------------------------------------------------------------
-except KeyboardInterrupt:
-    print("Keyboard input received, ignore")
+except KeyboardInterrupt:		    # catching the ctrl-C 
+    print("Keyboard input received, ignore and shutdown")
     pass
 #                                          # if break of the while loop ... exit
                                            # report number of records read and files generated
@@ -390,5 +414,5 @@ location.date = ephem.Date(datetime.utcnow())
 if nerr > 0:
     print("\nNumber of errors:", nerr,"<<<<<\n")
 print("Exit now ...", location.date, "\n=================================================================================================\n")
-exit(1)
+exit(0)
 #

@@ -253,8 +253,8 @@ def soa2rts(RTS, client, secretkey, prt=False):	# gather the competition data fr
                     ognid=getognflarmid(regi)       # get the flarm if from the OGN DDB
             else:
                     regi = "reg_NOTYET"             # if we do not have the registration ID on the soaringspota
-            
-            devicesid+=idflarm+'/'
+            if idflarm != '':
+               devicesid+=idflarm+'/'
             if prt:
                print("Pilot:",  pname, "Club:", club, "CompID:", cn, "Nation:", nation, "Country Code", country3,  "IGCID:", igcid, "Reg:", regi, "Flarm:", idflarm, idfreg, ognpair)
             npil += 1
@@ -268,12 +268,11 @@ def soa2rts(RTS, client, secretkey, prt=False):	# gather the competition data fr
     
     
     # print the number of pilots as a reference and control
-    devicesid=devicesid[0:-1] 
+    if len(devicesid) > 0:
+       devicesid=devicesid[0:-1] 
     if prt:
        print("= Pilots ===========================", npil, "\n\n")
        print (devicesid) 
     RTS = {"Compname": eventname, "Category": category, "Country": country,
                "EndDate": endate, "Location": lcname, "Classes": classes, "Pilots": pilots, "Devices": devicesid}
-    if prt:
-       print(j)
     return (RTS)
