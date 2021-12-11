@@ -40,8 +40,8 @@ def shutdown(sock):
         f.close()
     local_time = datetime.now() 	# report date and time now
     location.date = ephem.Date(datetime.utcnow())
-    print("Local Time (server) now is:", local_time, " and UTC time at location ",
-          config.location_name, "is:", location.date, "UTC.\n")
+    print("Local Time (server) now is:", local_time, " location:  ",
+          config.location_name, " and UTC time is:", location.date, "UTC.\n")
     try:
         os.remove(config.APP+".alive")	# delete the mark of alive
     except:
