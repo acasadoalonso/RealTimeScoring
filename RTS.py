@@ -19,7 +19,6 @@ from datetime import datetime
 import ephem
 from parserfuncs import parseraprs,alive      # the ogn/ham parser functions
 from soa2rts import     soa2rts		# the soaringspot to real time scoring function
-from ognddbfuncs import getognmodel	# get the glider model from DDB
 
 
 import config
@@ -392,7 +391,8 @@ try:					# try to be able to catch exception the ctrl-C
                     pilotname = pil['PilotName']
                     compid = pil['CompID']
                     classg = pil['Class']
-                    regis = pil['Registration']
+                    regis  = pil['Registration']
+                    model  = pil["AcftModel"]
                     break
             fid[ident] = 0                  	# init the counter
             cout += 1                       	# one more file to create
@@ -406,8 +406,7 @@ try:					# try to be able to catch exception the ctrl-C
             # HFGIDGLIDERID:D2520
             fd.write('HFGIDGLIDERID:'+regis+'\n')
             # HFGTYGLIDERTYPE:Janus_CE
-            if getognmodel(ident[3:9]):     	# write the model
-                fd.write('HFGTYGLIDERTYPE:'+getognmodel(ident[3:9])+'\n')
+            fd.write('HFGTYGLIDERTYPE:'+model+'\n')
             # HFCIDCOMPETITIONID:K5
             fd.write('HFIDCOMPETITION:'+compid+'\n')
             fd.write('HFCCLCOMPETITIONCLASS:'+classg+'\n')
