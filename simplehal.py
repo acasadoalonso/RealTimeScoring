@@ -2,14 +2,14 @@
 Classes encapsulating the structure of a HAL Document.
 """
 
+from copy import deepcopy
+from uritemplate import expand
 try:
     import json
 except ImportError:
     import simplejson as json
 
-from uritemplate import expand
 
-from copy import deepcopy
 
 VALID_LINK_ATTRS = ['templated', 'type', 'name', 'profile', 'title',
                     'hreflang']
