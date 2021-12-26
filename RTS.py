@@ -17,7 +17,7 @@ import argparse
 from time import sleep
 from datetime import datetime
 import ephem
-from parserfuncs import parseraprs,alive      # the ogn/ham parser functions
+from parserfuncs import parseraprs,alive# the ogn/ham parser functions
 from soa2rts import     soa2rts		# the soaringspot to real time scoring function
 
 
