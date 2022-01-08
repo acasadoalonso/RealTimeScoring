@@ -27,7 +27,8 @@ echo "=================================================="	#
 echo " "							#
 echo								#
 sudo apt-get update						#
-sudo apt-get install -y language-pack-en-base 			# 
+sudo locale-gen en_US en_US.UTF-8				#
+sudo update-locale 						#
 export LC_ALL=en_US.UTF-8 && export LANG=en_US.UTF-8		#
 echo "export LC_ALL=en_US.UTF-8 && export LANG=en_US.UTF-8 " >>~/.profile #
 echo "export LD_LIBRARY_PATH=/usr/local/lib" >>~/.profile 	#
@@ -159,8 +160,9 @@ then								#
 	sudo -H pip3 uninstall mysqlclient			#
         sudo apt-get install -y libmysqlclient-dev		#
         sudo apt-get install percona-toolkit			#
+   	sudo mysql_secure_installation				#
 else								#
-        sudo apt-get libmariadb-dev				#
+        sudo apt-get install libmariadb-dev			#
 fi								#
 sudo -H pip3 install --no-binary mysqlclient mysqlclient 	#
 cd /var/www/html/						#
@@ -207,47 +209,49 @@ then								#
       sudo usermod -aG docker $USER				#
       sudo apt update						#
    fi								#
-   cd $SCRIPTPATH/../SARsrc/dockerfiles				#
-   echo "Current directory: "$(pwd)				#
-   cp ../doc/.my.cnf ~/						#
-   arch=$(uname -m)						#
-   if [ $arch != 'x84-64' ]					#
+   if [ $SCRIPTPATH/.. == 'src' ]				#
    then								#
-      cd Mariadb.debian						#
-      echo "Create the container for the non-AMD64 architecture" #
-      echo "===================================================" #
-      #bash mariadb.patch					#
-      make							#
-      echo "Create mariadb container"				#
-      echo "========================"				#
-      bash mariadb.sh						#
-      echo "Create phpmyadmin container"			#
-      echo "==========================="			#
-      bash mariadbpma.pull					#
-      bash mariadbpma.sh					#
-      cd ..							#
-   else								#
-      sudo bash mariadbnet.sh					#
-      sudo bash mariadb.sh					#
-      sudo bash mariadbpma.sh					#
+   	cd $SCRIPTPATH/../SARsrc/dockerfiles			#
+   	echo "Current directory: "$(pwd)			#
+   	cp ../doc/.my.cnf ~/					#
+   	arch=$(uname -m)					#
+   	if [ $arch != 'x84-64' ]				#
+   	then							#
+      		cd Mariadb.debian				#
+      		echo "Create the container for the non-AMD64 architecture" #
+      		echo "===================================================" #
+      		#bash mariadb.patch				#
+      		make						#
+      		echo "Create mariadb container"			#
+      		echo "========================"			#
+      		bash mariadb.sh					#
+      		echo "Create phpmyadmin container"		#
+      		echo "==========================="		#
+      		bash mariadbpma.pull				#
+      		bash mariadbpma.sh				#
+      		cd ..						#
+   	else							#
+      		sudo bash mariadbnet.sh				#
+      		sudo bash mariadb.sh				#
+      		sudo bash mariadbpma.sh				#
+   	fi							#
+   	bash install.portainer					#
+   	if [ ! -f .DBpasswd    ]				#
+   	then							#
+      		echo "Type DB password ..."			#
+      		read DBpasswd					#
+      		echo $DBpasswd > .DBpasswd			#
+   	fi							#
+   	cd $SCRIPTPATH/../SARsrc				#
+   	echo "Current directory: "$(pwd)			#
+   	ping MARIADB -c 5					#
+   	cat .DBpasswd						#
+   	docker exec mariadb mariadb -e "create user if not exists root@'%' identified by '$(cat .DBpasswd)';"
+   	docker exec mariadb mariadb -e "grant all privileges on *.* to root@'%' with GRANT option;"
+   	sudo mysql -u root -p$(cat .DBpasswd) -h MARIADB <doc/adduser.sql	
+   	echo "SET GLOBAL log_bin_trust_function_creators = 1; " | sudo mysql -u root -p$(cat .DBpasswd) -h MARIADB
+   	echo "Secure the installation now ... answer the questions"  #
    fi								#
-   bash install.portainer					#
-   if [ ! -f .DBpasswd    ]					#
-   then								#
-      echo "Type DB password ..."				#
-      read DBpasswd						#
-      echo $DBpasswd > .DBpasswd				#
-   fi								#
-   cd $SCRIPTPATH/../SARsrc					#
-   echo "Current directory: "$(pwd)				#
-   ping MARIADB -c 5						#
-   cat .DBpasswd						#
-   docker exec mariadb mariadb -e "create user if not exists root@'%' identified by '$(cat .DBpasswd)';"
-   docker exec mariadb mariadb -e "grant all privileges on *.* to root@'%' with GRANT option;"
-   sudo mysql -u root -p$(cat .DBpasswd) -h MARIADB <doc/adduser.sql	
-   echo "SET GLOBAL log_bin_trust_function_creators = 1; " | sudo mysql -u root -p$(cat .DBpasswd) -h MARIADB
-   echo "Secure the installation now ... answer the questions"  #
-   sudo mysql_secure_installation				#
    sudo apt-get install percona-toolkit				#
    cd -								#
 fi								#

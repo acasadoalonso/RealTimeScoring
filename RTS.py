@@ -33,8 +33,9 @@ def shutdown(ssock):
     # shutdown before exit
     ssock.shutdown(0)                   # shutdown the connection
     ssock.close()                       # close the connection file
-    for fdf in ffd:			# close all the IGC files generated
-        fdf.fclose()
+    for fname in ffd:			# close all the IGC files generated
+        print ("File:", fname)
+    sys.stdout.flush()
     loc_time = datetime.now() 		# report date and time now
     location.date = ephem.Date(datetime.utcnow())
     print("Local Time (server) now is:", loc_time, " location:  ",
@@ -69,11 +70,11 @@ signal.signal(signal.SIGTERM, signal_term_handler)
 pgmver = "V1.0"				    # program version
 fid = {}                         	    # FLARM ID list
 ffd = {}                      		    # file descriptor list
-RTS = {}					    # the output from soa2rts
+RTS = {}				    # the output from soa2rts
 tmp = ''				    # an add to the IGC fine name
 prt = False				    # print debugging, false by default
 CCerrors = []
-nerr = 0					    # number of errors found
+nerr = 0				    # number of errors found
 nrecs = 0
 loopindex = 0				    # loop index
 cin = 0                                     # input record counter
@@ -130,7 +131,9 @@ if client == '' and secretkey == '':    # if not provided in the arguments ???
         if prt:
             print("Reading the clientid/secretkey from the SoaringSpot directory")
         # if client/screct keys are not in the config file, read it for SoaringSpot directory
-        secpath = cwd+"/SoaringSpot/"
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        secpath = dir_path+"/SoaringSpot/"
+        print (secpath)
         f = open(secpath+"clientid") 	# open the file with the client id
         client = f.read()               # read it
         client = client.rstrip() 	# clear the whitespace at the end
@@ -397,21 +400,29 @@ try:					# try to be able to catch exception the ctrl-C
             fid[ident] = 0                  	# init the counter
             cout += 1                       	# one more file to create
             # prepare the IGC header
-            fd = open(datapath+tmp+'FD'+dte+'.' +
-                      station+'.'+idname+'.IGC', 'w')
-            fd.write('AGNE001GLIDER\n')     	# write the IGC header
-            fd.write('HFDTE'+dte+'\n')      	# write the date on the header
-            # write the IGC header - the datum
-            fd.write('AHFDTM100DATUM:WGS-1984\n')
-            # HFGIDGLIDERID:D2520
-            fd.write('HFGIDGLIDERID:'+regis+'\n')
-            # HFGTYGLIDERTYPE:Janus_CE
-            fd.write('HFGTYGLIDERTYPE:'+model+'\n')
-            # HFCIDCOMPETITIONID:K5
-            fd.write('HFIDCOMPETITION:'+compid+'\n')
-            fd.write('HFCCLCOMPETITIONCLASS:'+classg+'\n')
-            fd.write('HFPLTPILOTINCHARGE:'+pilotname+'\n')
-            fd.write('LLXVFLARM:'+ident+'\n')
+            fname = datapath+tmp+'FD'+dte+'.'+idname+'.IGC'
+
+            if not os.path.exists(fname):
+               fd = open(fname, 'w')
+               fd.write('AGNE001GLIDER\n')     	# write the IGC header
+               fd.write('HFDTE'+dte+'\n')      	# write the date on the header
+               # write the IGC header - the datum
+               fd.write('AHFDTM100DATUM:WGS-1984\n')
+               # HFGIDGLIDERID:D2520
+               fd.write('HFGIDGLIDERID:'+regis+'\n')
+               # HFGTYGLIDERTYPE:Janus_CE
+               fd.write('HFGTYGLIDERTYPE:'+model+'\n')
+               # HFCIDCOMPETITIONID:K5
+               fd.write('HFIDCOMPETITION:'+compid+'\n')
+               fd.write('HFCCLCOMPETITIONCLASS:'+classg+'\n')
+               fd.write('HFPLTPILOTINCHARGE:'+pilotname+'\n')
+               fd.write('LLXVFLARM:'+ident+'\n')
+            else:
+               fd = open(fname, 'a')
+               rtime = datenow.strftime("%y%m%d %H%M%S")            # today's date
+               fd.write('LRESUME:'+rtime+'\n')
+               fd.write('LLXVFLARM:'+ident+'\n')
+
             ffd[ident] = fd                	# save the file descriptor
             # increase the number of records read
         fid[ident] += 1
@@ -441,6 +452,7 @@ try:					# try to be able to catch exception the ctrl-C
                          '\n')  		# format the IGC B record
         # include the original APRS record for documentation
         ffd[ident].write('LGNE '+data)
+        ffd[ident].flush()
 #       ==============================================================================================================================
 
         # if we do not have the take off time ??

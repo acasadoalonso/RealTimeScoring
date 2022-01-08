@@ -221,6 +221,8 @@ def soa2rts(RTS, client, secretkey, prt=False):
             idfreg = ""
             if 'live_track_id' in contestants:      # check if we have the FlarmId from the SoaringSpot
                 livetrk = contestants['live_track_id']  # flarmID and OGN pair
+                if prt:
+                   print ("Live_track:", livetrk)
                 if len(livetrk) == 9:
                     idflarm = livetrk                # case that just the FlarmID, no piaring
                 if len(livetrk) == 19:              # format:  FLR123456 OGN654321
@@ -244,11 +246,13 @@ def soa2rts(RTS, client, secretkey, prt=False):
             else:
                 # if we do not have the registration ID on the soaringspota
                 regi = "reg_NOTYET"
+            if idflarm == '':
+               idflarm = ognid
             if idflarm != '':
                 devicesid += idflarm+'/'
             if prt:
                 print("Pilot:",  pname, "Club:", club, "CompID:", cn, "Nation:", nation, "Country Code",
-                      country3,  "IGCID:", igcid, "Reg:", regi, "Model:", ar, "Flarm:", idflarm, idfreg, ognpair, ognid)
+                      country3,  "IGCID:", igcid, "Reg:", regi, "Model:", ar, "Flarm:", idflarm, "idf:", idfreg, "OGNpair", ognpair, ognid)
             npil += 1
             pil = {"PilotName": pname, "Club": club, "CompID":  cn, "Nation":  nation, "CountryCode": country3, "Registration": regi, "Class": classname,
                    "IgcID":  igcid, "AcftModel": ar, "Flarmid": idflarm, "OGNpair": ognpair}
