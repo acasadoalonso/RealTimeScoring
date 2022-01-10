@@ -29,16 +29,26 @@ import config
 #########################################################################
 
 
-def shutdown(ssock):
+def shutdown(ssock, sunset=False):
     # shutdown before exit
     ssock.shutdown(0)                   # shutdown the connection
     ssock.close()                       # close the connection file
-    for fname in ffd:			# close all the IGC files generated
-        print ("File:", fname)
+
+    datenow = datetime.utcnow()     	# get the date
+    dtes = datenow.strftime("%y%m%d %H%M%S")  # today's date/time
+    k = list(ffd.keys())		# create a list of opened files
+    for key in k:                       # report data by flarm id
+        
+        if ffd[key] != None:
+           print ("File:", key)		# file name/id
+           if sunset:			# in case of sunset
+                   ffd[key].write('LSUNSET:'+dtes+'\n')
+           ffd[key].close()        	# and close all the file
+
     sys.stdout.flush()
     loc_time = datetime.now() 		# report date and time now
     location.date = ephem.Date(datetime.utcnow())
-    print("Local Time (server) now is:", loc_time, " location:  ",
+    print("\nShutdown now: Local Time (server) now is:", loc_time, " location:  ",
           location_name, " and UTC time is:", location.date, "UTC.\n")
     try:
         os.remove(config.APP+".alive")  # delete the mark of alive
@@ -253,11 +263,11 @@ try:					# try to be able to catch exception the ctrl-C
         date = datetime.utcnow()        # time of the server
         localdate = datetime.now()      # time of the server
         # if it is past the sunset or 21:00h local time ??
-        if location.date > next_sunset or localdate.hour > 21:  # until sunset or 21:00h local time
+        if location.date > next_sunset: # until sunset or 21:00h local time
 
             print("At Sunset now ... Time is (server):", date, "UTC. Location time:",
                   location.date, "UTC ... Next sunset is: ", next_sunset,  " UTC \n================================================================================\n")
-            shutdown(sock)		# shutdown in that case
+            shutdown(sock, sunset=True)		# shutdown in that case
             print("At Sunset ... Exit\n\n", localdate)
             sys.stdout.flush()          # flush the print messages
             sys.stderr.flush()          # flush the print messages
@@ -407,7 +417,7 @@ try:					# try to be able to catch exception the ctrl-C
                fd.write('AGNE001GLIDER\n')     	# write the IGC header
                fd.write('HFDTE'+dte+'\n')      	# write the date on the header
                # write the IGC header - the datum
-               fd.write('AHFDTM100DATUM:WGS-1984\n')
+               fd.write('HFDTM100GPSDATUM:WGS-1984 \n')
                # HFGIDGLIDERID:D2520
                fd.write('HFGIDGLIDERID:'+regis+'\n')
                # HFGTYGLIDERTYPE:Janus_CE
