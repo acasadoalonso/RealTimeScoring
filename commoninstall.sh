@@ -19,6 +19,7 @@ export LC_ALL=en_US.UTF-8 && export LANG=en_US.UTF-8		#
 sudo apt-get install -y software-properties-common 		#
 sudo apt-get install -y python3-software-properties 		#
 sudo apt-get install -y build-essential 			#
+sudo apt-get install -y python-is-python3			#
 echo								#
 echo " "							#
 echo "=================================================="	#
@@ -94,9 +95,10 @@ echo "============================"                             #
 echo "Install now Apache2 & PHP   "                             #
 echo "============================"                             #
 sudo apt-get install -y apache2 php 				#
-sudo apt-get install -y php-sqlite3 php-mysql php-cli 		#
+sudo apt-get install -y php-sqlite3 php-cli 			#
+sudo apt-get install -y php-mysql 				#
 sudo apt-get install -y php-mbstring php-json			#
-sudo apt-get install -y php7.4					#
+sudo apt-get install -y php8.1	php8.1-mysql			#
 sudo a2enmod rewrite						#
 sudo phpenmod mbstring						#
 sudo a2enmod headers						#
@@ -105,7 +107,7 @@ echo "Install now other utilities"				#
 echo "==========================="                              #
 sudo apt-get install -y ntpdate					#
 sudo apt-get install -y ssmtp					#
-sudo apt-get install -y at sshpass minicom 			#
+sudo apt-get install -y at sshpass minicom sshfs		#
 sudo apt-get install -y fakeroot debhelper 			#
 sudo apt-get install -y libfile-fcntllock-perl			#
 sudo apt-get install -y nvme-cli				#
@@ -143,6 +145,8 @@ sudo -H python3 -m pip install ephem pytz geopy configparser 	#
 sudo -H python3 -m pip install pycountry uritemplate requests	#
 sudo -H python3 -m pip install beeprint ogn.client		#
 sudo -H python3 -m pip install tqdm psutil python-dateutil	#
+sudo -H python3 -m pip install ping3               		#
+sudo -H python3 -m pip install pipreqs               		#
 sudo -H python3 -m pip install ttn               		#
 sudo -H python3 -m pip install paho-mqtt			#
 sudo -H python3 -m pip install pyserial 			#
@@ -155,6 +159,9 @@ sudo -H python3 -m pip install docker               		#
 sudo -H python3 -m pip install yamllint               		#
 sudo -H python3 -m pip install setuptools 			#
 sudo -H python3 -m pip install flake8               		#
+sudo -H python3 -m pip install httpx               		#
+sudo -H python3 -m pip install mysqlclient			#
+sudo -H python3 -m pip install timezonefinder zoneinfo		#
 if [ $sql = 'MySQL' ]						#	
 then								#
 	sudo -H pip3 uninstall mysqlclient			#

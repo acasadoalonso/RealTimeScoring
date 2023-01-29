@@ -59,7 +59,7 @@ except:
 try:
     DDBurl2 = cfg.get('server', 'DDBurl2').strip("'")
 except:
-    DDBurl2 = 'http://acasado.es:60082/download/?j=2'
+    DDBurl2 = 'http://ddb.acasado.name:60082/download/?j=2'
 
 try:
     clientid = cfg.get('server', 'clientid').strip("'")

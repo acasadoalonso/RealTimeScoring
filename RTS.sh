@@ -7,7 +7,7 @@ DBpath=$(echo    `grep '^root '   $CONFIGDIR/RTSconfig.ini` | sed 's/=//g' | sed
 # DBpath point to the directory where the IGC filess generated will be stored ....
 SCRIPT=$(readlink -f $0)
 SCRIPTPATH=`dirname $SCRIPT`
-
+dt=$(date +%y%m%d)
 
 if [ ! -d $DBpath ]
 then
@@ -17,6 +17,6 @@ then
 fi
 cd $DBpath
 echo "IGC files going to: "$(pwd)
-echo $(hostname)" running RTS.sh:" 		>>RTSproc.log
-python3 $SCRIPTPATH/RTS.py			>>RTSproc.log &
+echo $(hostname)" running RTS.sh:" 		>>RTSproc$dt.log
+python3 $SCRIPTPATH/RTS.py			>>RTSproc$dt.log &
 

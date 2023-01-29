@@ -1,0 +1,8 @@
+MySQL-python==1.2.5
+ogn_client==1.2.1
+ping3==4.0.3
+pycountry==20.7.3
+pyephem==9.99
+requests==2.25.1
+simplejson==3.17.6
+uritemplate==4.1.1
